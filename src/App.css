@@ -1,0 +1,8 @@
+/* App-level styles */
+.netflix-app {
+  min-height: 100vh;
+  background-color: #000000;
+  color: #ffffff;
+  overflow-x: hidden;
+  position: relative;
+}
