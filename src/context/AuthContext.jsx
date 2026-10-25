@@ -16,6 +16,16 @@ export function AuthProvider({ children }) {
       setLoading(false)
 
       if (user) {
+        // Save user session in sessionStorage
+        try {
+          sessionStorage.setItem(
+            "netflix_user",
+            JSON.stringify({ email: user.email, uid: user.uid })
+          )
+        } catch (e) {
+          console.error("Error saving session to sessionStorage:", e)
+        }
+
         // Load user's saved list from localStorage
         try {
           const savedList = localStorage.getItem(`netflix_my_list_${user.uid}`)
@@ -29,6 +39,7 @@ export function AuthProvider({ children }) {
           setMyList([])
         }
       } else {
+        sessionStorage.removeItem("netflix_user")
         setMyList([])
       }
     })
@@ -69,6 +80,7 @@ export function AuthProvider({ children }) {
   async function logout() {
     try {
       await signOut(auth)
+      sessionStorage.removeItem("netflix_user")
     } catch (err) {
       console.error("Sign out error:", err)
       throw err
@@ -92,6 +104,7 @@ export function AuthProvider({ children }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) {

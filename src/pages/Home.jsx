@@ -50,15 +50,11 @@ function Home() {
   // Detail Modal state
   const [selectedMovie, setSelectedMovie] = useState(null)
 
-  // Loading state for movies
-  const [dataLoading, setDataLoading] = useState(false)
-
   // Fetch movies and TV series only if user is logged in
   useEffect(() => {
     if (!currentUser) return
 
     let isMounted = true
-    setDataLoading(true)
 
     async function loadContent() {
       try {
@@ -106,8 +102,6 @@ function Home() {
         }
       } catch (err) {
         console.error("Error loading catalogue content:", err)
-      } finally {
-        if (isMounted) setDataLoading(false)
       }
     }
 
@@ -121,19 +115,27 @@ function Home() {
   // Handle Search Input Debounce
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setSearchResults([])
-      setIsSearching(false)
-      return
+      const timer = setTimeout(() => {
+        setSearchResults([])
+        setIsSearching(false)
+      }, 0)
+      return () => clearTimeout(timer)
     }
 
-    setIsSearching(true)
+    const startTimer = setTimeout(() => {
+      setIsSearching(true)
+    }, 0)
+
     const timeoutId = setTimeout(async () => {
       const results = await searchMedia(searchQuery)
       setSearchResults(results.filter((r) => r.poster_path || r.backdrop_path))
       setIsSearching(false)
     }, 350)
 
-    return () => clearTimeout(timeoutId)
+    return () => {
+      clearTimeout(startTimer)
+      clearTimeout(timeoutId)
+    }
   }, [searchQuery])
 
   // If Auth state is still being determined, show Netflix loader
